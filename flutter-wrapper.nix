@@ -35,7 +35,8 @@ in {
               flutter_dir=~/.cache/flutter/${version}
               if [ ! -d $flutter_dir ]; then
                 mkdir -p $flutter_dir
-                cp -R ${flutter}/. $flutter_dir
+                # Use git clone to preserve Git history instead of copying
+                git clone --depth 1 --branch ${version} https://gitcode.com/openharmony-tpc/flutter_flutter.git $flutter_dir
                 chmod -R +w $flutter_dir
               fi
 
