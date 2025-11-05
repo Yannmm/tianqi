@@ -22,23 +22,6 @@
         "type": "github"
       }
     },
-    "custom-flutter": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1756275867,
-        "narHash": "sha256-XSWY+Hyyefv6V0LhEp/SmC5lpoRkTe9nAO1EZ6kJi/g=",
-        "ref": "2d2e89326c0944c4ab9e1bf2996f6b05a7dbf618",
-        "rev": "e3905a2a5f87102abe733f8a5970c213ccc3825e",
-        "revCount": 85415,
-        "type": "git",
-        "url": "https://gitcode.com/openharmony-tpc/flutter_flutter.git"
-      },
-      "original": {
-        "rev": "e3905a2a5f87102abe733f8a5970c213ccc3825e",
-        "type": "git",
-        "url": "https://gitcode.com/openharmony-tpc/flutter_flutter.git"
-      }
-    },
     "devshell": {
       "inputs": {
         "nixpkgs": [
@@ -115,7 +98,6 @@
     "root": {
       "inputs": {
         "android-nixpkgs": "android-nixpkgs",
-        "custom-flutter": "custom-flutter",
         "flake-utils": "flake-utils_2",
         "nixpkgs": "nixpkgs"
       }

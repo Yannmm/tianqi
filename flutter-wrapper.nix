@@ -47,5 +47,3 @@ in {
               export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
             '';
   }
-
-
