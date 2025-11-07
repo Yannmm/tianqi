@@ -7,7 +7,7 @@ set -e # Exit immediately if a command exits with a non-zero status.
 
 # --- Configuration ---
 FLUTTER_VERSION="3.22.1-ohos-1.0.1"
-FLUTTER_SDK_DIR="$PWD/.cache/flutter_sdk/$FLUTTER_VERSION"
+FLUTTER_SDK_DIR="$HOME/.cache/flutter/$FLUTTER_VERSION"
 FLUTTER_REPO="https://gitcode.com/openharmony-tpc/flutter_flutter.git"
 
 # --- SDK Setup ---
