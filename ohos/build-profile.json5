@@ -5,13 +5,13 @@
         "name": "default",
         "type": "HarmonyOS",
         "material": {
-          "certpath": "/Users/yannmm/.ohos/config/default_ohos_pmrTKwci3unFGvaJKc9UTuvIWdUYkwyqAqm8mcu6aLg=.cer",
+          "certpath": "/Users/rayman/.ohos/config/default_ohos_v7pijf_WgfrnuqGJ7HzwlHOK3nxZDkuZX4GwVizhels=.cer",
           "keyAlias": "debugKey",
-          "keyPassword": "0000001B754F5093FFF924996124D530EF308E9CE3BAAD9E44BFFAF71594E86B520252409341B28CBC3ACC",
-          "profile": "/Users/yannmm/.ohos/config/default_ohos_pmrTKwci3unFGvaJKc9UTuvIWdUYkwyqAqm8mcu6aLg=.p7b",
+          "keyPassword": "0000001B46629D2099C158583E655167F78D1B85A3C9453D7FF51C0ADA6A40BC7BD9CC4475A90DA8EDB959",
+          "profile": "/Users/rayman/.ohos/config/default_ohos_v7pijf_WgfrnuqGJ7HzwlHOK3nxZDkuZX4GwVizhels=.p7b",
           "signAlg": "SHA256withECDSA",
-          "storeFile": "/Users/yannmm/.ohos/config/default_ohos_pmrTKwci3unFGvaJKc9UTuvIWdUYkwyqAqm8mcu6aLg=.p12",
-          "storePassword": "0000001B824B0C8ECE299244136B1AAFB703930334BB99F05A95C1FE09F2515D28D13E49591064E4BBD67F"
+          "storeFile": "/Users/rayman/.ohos/config/default_ohos_v7pijf_WgfrnuqGJ7HzwlHOK3nxZDkuZX4GwVizhels=.p12",
+          "storePassword": "0000001BEA15A6D76C09E617F4D46C37ED514180BEBC98305BDBC18C8D49062C565A71C4DAF2387CEC4A0D"
         }
       }
     ],
