@@ -21,35 +21,12 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: TDTheme.of(context).brandNormalColor,
-        title: TDText(
-          'TDesign HomePage',
-          textColor: Colors.white,
-          font: Font(size: 18, lineHeight: 26),
-          fontWeight: FontWeight.w600,
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.white),
-            onPressed: () {
-              TDToast.showText('Search clicked', context: context);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-            onPressed: () {
-              TDToast.showText('Notifications clicked', context: context);
-            },
-          ),
-        ],
-      ),
       body: StreamBuilder(
         stream: _tab,
         builder: (context, snapshot) => !snapshot.hasData
             ? const SizedBox.shrink()
             : switch (snapshot.data!) {
-                HomeTab.dashboard => DashboardPage(),
+                HomeTab.dashboard => const DashboardPage(),
                 HomeTab.expenses => ExpensePage(),
                 HomeTab.more => MorePage(),
                 HomeTab.refuel => RefuelPage()
