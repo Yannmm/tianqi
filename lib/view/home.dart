@@ -26,7 +26,7 @@ class _HomeState extends State<Home> {
         builder: (context, snapshot) => !snapshot.hasData
             ? const SizedBox.shrink()
             : switch (snapshot.data!) {
-                HomeTab.dashboard => const DashboardPage(),
+                HomeTab.dashboard => DashboardPage(),
                 HomeTab.expenses => ExpensePage(),
                 HomeTab.more => MorePage(),
                 HomeTab.refuel => RefuelPage()
