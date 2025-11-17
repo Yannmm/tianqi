@@ -2,82 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'dart:math' as math;
 
-class DashboardPage2 extends StatefulWidget {
-  const DashboardPage2({super.key});
-
-  @override
-  State<DashboardPage2> createState() => _DashboardPageState1();
-}
-
-class _DashboardPageState1 extends State<DashboardPage2> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        color: TDTheme.of(context).brandNormalColor,
-        child: CustomScrollView(
-          slivers: [
-            _appBar(),
-            _brief(),
-            SliverToBoxAdapter(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      blurRadius: 8,
-                      spreadRadius: 2,
-                      color: Colors.black12,
-                    ),
-                  ],
-                ),
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: 50,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text("Item $index"),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _appBar() => SliverAppBar(
-        title: Container(
-          child: Center(
-            child: Text("BMW 320D",
-                style: TextStyle(
-                    color: TDTheme.of(context).fontWhColor1,
-                    fontSize: TDTheme.of(context).fontHeadlineSmall?.size,
-                    fontWeight:
-                        TDTheme.of(context).fontHeadlineSmall?.fontWeight)),
-          ),
-        ),
-        pinned: true,
-        backgroundColor: TDTheme.of(context).brandNormalColor,
-      );
-
-  Widget _brief() => SliverPersistentHeader(
-        pinned: true,
-        delegate: _ShrinkHeaderDelegate(
-          minHeight: 0, // fully collapsed
-          maxHeight: 400, // original height
-          child: BriefView(),
-        ),
-      );
-}
-
 class BriefView extends StatefulWidget {
   @override
   State<BriefView> createState() => _BriefViewState();
@@ -163,32 +87,16 @@ class _DashboardPageState extends State<DashboardPage> {
       // We set a background color for the whole page.
       // The list (Widget C) will have its own background color.
       backgroundColor: TDTheme.of(context).brandNormalColor,
+      floatingActionButton: TDFab(
+        theme: TDFabTheme.primary,
+        text: 'Add Expense',
+        onClick: _addExpense,
+      ),
       body: CustomScrollView(
         slivers: [
-          // WIDGET B: The shrinking fixed-height widget
-          // We use SliverPersistentHeader to make Widget B shrink.
           _brief(),
-
-          // WIDGET C: The List with rounded corners
           // We create the rounded corner "sheet" effect using two slivers.
-
-          SliverToBoxAdapter(
-            child: Container(
-              // This transform pulls the container "up" by 1 pixel,
-              // overlapping the header and closing any anti-aliasing gap.
-              transform: Matrix4.translationValues(0.0, 1.0, 0.0),
-              // We add 1 pixel to the height to compensate for the transform
-              // and ensure the rounded corner radius looks correct.
-              height: _listCornerRadius + 1.0,
-              decoration: BoxDecoration(
-                color: Colors.white, // The list's background color
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(_listCornerRadius),
-                  topRight: Radius.circular(_listCornerRadius),
-                ),
-              ),
-            ),
-          ),
+          _cap(),
 
           // 2. This is the actual list content.
           SliverList(
@@ -238,13 +146,77 @@ class _DashboardPageState extends State<DashboardPage> {
         // The delegate builds the widget and defines its shrink behavior.
         delegate: _ShrinkHeaderDelegate(
           minHeight: 0, // fully collapsed
-          maxHeight: 400, // original height
+          maxHeight: 250, // original height
           child: BriefView(),
         ),
         // We don't pin it, so it can shrink completely to 0.
         pinned: false,
-        floating: false,
+        floating: true,
       );
+
+  Widget _cap() => SliverToBoxAdapter(
+        child: Container(
+          // This transform pulls the container "up" by 1 pixel,
+          // overlapping the header and closing any anti-aliasing gap.
+          transform: Matrix4.translationValues(0.0, 1.0, 0.0),
+          // We add 1 pixel to the height to compensate for the transform
+          // and ensure the rounded corner radius looks correct.
+          height: _listCornerRadius + 1.0,
+          decoration: BoxDecoration(
+            color: Colors.white, // The list's background color
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(_listCornerRadius),
+              topRight: Radius.circular(_listCornerRadius),
+            ),
+          ),
+        ),
+      );
+
+  void _addExpense() {
+    // _showQuarterModal(context);
+    // showBottomSheet(context: context, builder: )
+
+    // Navigator.of(context).push(
+    //   TDSlidePopupRoute(
+    //       slideTransitionFrom: SlideTransitionFrom.bottom,
+    //       builder: (context) {
+    //         return TDPopupBottomDisplayPanel(
+    //           title: '标题文字标题文字标题文字标题文字标题文字标题文字标题文字',
+    //           closeColor: TDTheme.of(context).errorNormalColor,
+    //           closeClick: () => Navigator.maybePop(context),
+    //           child: Container(
+    //             height: 200,
+    //             color: Colors.green,
+    //           ),
+    //           radius: 6,
+    //         );
+    //       }),
+    // );
+
+    Navigator.of(context).push(
+      TDSlidePopupRoute(
+          slideTransitionFrom: SlideTransitionFrom.bottom,
+          builder: (context) {
+            return SizedBox(
+              height: 600,
+              child: TDPopupBottomConfirmPanel(
+                title: '标题文字标题文字标题文字标题文字标题文字标题文字标题文字',
+                leftText: '点这里确认!',
+                leftTextColor: TDTheme.of(context).brandNormalColor,
+                leftClick: () {
+                  TDToast.showText('确认', context: context);
+                  Navigator.maybePop(context);
+                },
+                rightText: '关闭',
+                rightTextColor: TDTheme.of(context).errorNormalColor,
+                rightClick: () => Navigator.maybePop(context),
+                child: Container(height: 200, color: Colors.green),
+                radius: 6,
+              ),
+            );
+          }),
+    );
+  }
 }
 
 // This custom delegate is the "magic" that makes Widget B shrink.
@@ -308,4 +280,80 @@ class WidgetBDelegate extends SliverPersistentHeaderDelegate {
         oldDelegate.height != height ||
         oldDelegate.backgroundColor != backgroundColor;
   }
+}
+
+void _showQuarterModal(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    // Prevent tapping the scrim to dismiss
+    isDismissible: false,
+    // Prevent dragging down to dismiss
+    enableDrag: false,
+    // Makes the modal's background transparent so we control corner rounding
+    backgroundColor: Colors.transparent,
+    // Dimmed background color
+    barrierColor: Colors.black54,
+    builder: (context) {
+      final height = MediaQuery.of(context).size.height * 0.75;
+      return WillPopScope(
+        // Prevent system back button from closing the sheet
+        onWillPop: () async => false,
+        child: Container(
+          height: height,
+          // The rounding and background color are applied here
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              children: [
+                // Top row with close button on the right
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  child: Row(
+                    children: [
+                      const SizedBox(
+                          width: 48), // placeholder to keep X right-aligned
+                      const Expanded(child: SizedBox()), // center space
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.of(context).pop(),
+                        tooltip: 'Close',
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Divider to separate header from content (optional)
+                const Divider(height: 1),
+
+                // Contents
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: List.generate(
+                        20,
+                        (i) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text('Sheet item ${i + 1}'),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }
