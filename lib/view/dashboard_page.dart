@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'dart:math' as math;
 
+import 'package:tianqi/view/ui_utility.dart';
+
 class BriefView extends StatefulWidget {
   @override
   State<BriefView> createState() => _BriefViewState();
@@ -173,46 +175,63 @@ class _DashboardPageState extends State<DashboardPage> {
       );
 
   void _addExpense() {
-    // _showQuarterModal(context);
-    // showBottomSheet(context: context, builder: )
+    // Navigator.of(context).push(
+    //   TDSlidePopupRoute(
+    //       isDismissible: false,
+    //       slideTransitionFrom: SlideTransitionFrom.bottom,
+    //       builder: (context) {
+    //         return SizedBox(
+    //           height: kGetModalSheetHeight1(context),
+    //           child: TDPopupBottomDisplayPanel(
+    //             // hideClose: true,
+    //             title: 'Log Refuel',
+    //             // closeColor: TDTheme.of(context).errorNormalColor,
+    //             // closeClick: () => Navigator.maybePop(context),
+    //             rightClick: () {
+    //               TDToast.showText('确定', context: context);
+    //               Navigator.maybePop(context);
+    //             },
+    //             child: Container(
+    //               height: 200,
+    //               color: Colors.green,
+    //             ),
+    //             // draggable: true,
+    //             radius: 6,
+    //           ),
+    //         );
+    //       }),
+    // );
 
     // Navigator.of(context).push(
     //   TDSlidePopupRoute(
-    //       slideTransitionFrom: SlideTransitionFrom.bottom,
-    //       builder: (context) {
-    //         return TDPopupBottomDisplayPanel(
-    //           title: '标题文字标题文字标题文字标题文字标题文字标题文字标题文字',
-    //           closeColor: TDTheme.of(context).errorNormalColor,
-    //           closeClick: () => Navigator.maybePop(context),
-    //           child: Container(
-    //             height: 200,
-    //             color: Colors.green,
-    //           ),
-    //           radius: 6,
-    //         );
-    //       }),
+    //     slideTransitionFrom: SlideTransitionFrom.bottom,
+    //     builder: (context) {
+    //       return TDPopupBottomConfirmPanel(
+    //         title: '标题文字',
+    //         leftClick: () {
+    //           Navigator.maybePop(context);
+    //         },
+    //         rightText: '',
+    //         // rightText: "123",
+    //         // rightClick: () {
+    //         //   TDToast.showText('确定', context: context);
+    //         //   Navigator.maybePop(context);
+    //         // },
+    //         child: Container(height: 200),
+    //       );
+    //     },
+    //   ),
     // );
 
     Navigator.of(context).push(
       TDSlidePopupRoute(
           slideTransitionFrom: SlideTransitionFrom.bottom,
           builder: (context) {
-            return SizedBox(
-              height: 600,
-              child: TDPopupBottomConfirmPanel(
-                title: '标题文字标题文字标题文字标题文字标题文字标题文字标题文字',
-                leftText: '点这里确认!',
-                leftTextColor: TDTheme.of(context).brandNormalColor,
-                leftClick: () {
-                  TDToast.showText('确认', context: context);
-                  Navigator.maybePop(context);
-                },
-                rightText: '关闭',
-                rightTextColor: TDTheme.of(context).errorNormalColor,
-                rightClick: () => Navigator.maybePop(context),
-                child: Container(height: 200, color: Colors.green),
-                radius: 6,
-              ),
+            return TDPopupBottomDisplayPanel(
+              title: '标题文字标题文字标题文字标题文字标题文字标题文字标题文字',
+              closeColor: TDTheme.of(context).errorNormalColor,
+              closeClick: () => Navigator.maybePop(context),
+              child: Container(height: 200),
             );
           }),
     );
