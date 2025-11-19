@@ -5,8 +5,12 @@
 
 set -e # Exit immediately if a command exits with a non-zero status.
 
-# --- Configuration ---
-FLUTTER_VERSION="3.22.1-ohos-1.0.1"
+ # --- Configuration ---
+if [ -z "$1" ]; then
+  echo "ERROR: FLUTTER_VERSION argument is required. Usage: source setup-flutter.sh <FLUTTER_VERSION>" >&2
+  return 1 2>/dev/null || exit 1
+fi
+FLUTTER_VERSION="$1"
 FLUTTER_SDK_DIR="$HOME/.cache/flutter/$FLUTTER_VERSION"
 FLUTTER_REPO="https://gitcode.com/openharmony-tpc/flutter_flutter.git"
 

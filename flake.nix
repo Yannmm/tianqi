@@ -52,7 +52,9 @@
           shellHook = ''
             # Source the setup script to manage the custom Flutter SDK.
             # This will export FLUTTER_ROOT and add the correct SDK to the PATH.
-            source ./setup-flutter.sh
+            # 3.22.1-ohos-1.0.2
+            # 3.27.5-ohos-1.0.0
+            source ./setup-flutter.sh 3.27.5-ohos-1.0.0
 
             # --- OpenHarmony/DevEco Studio Environment ---
             export TOOL_HOME=/Applications/DevEco-Studio.app/Contents # mac environment

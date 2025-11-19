@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:tianqi/view/refuel_form.dart';
 import 'dart:math' as math;
 
 import 'package:tianqi/view/ui_utility.dart';
@@ -230,7 +231,7 @@ class _DashboardPageState extends State<DashboardPage> {
               title: '标题文字标题文字标题文字标题文字标题文字标题文字标题文字',
               closeColor: TDTheme.of(context).errorNormalColor,
               closeClick: () => Navigator.maybePop(context),
-              child: Container(height: 200),
+              child: RefuelForm(),
             );
           }),
     );

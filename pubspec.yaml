@@ -30,7 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  tdesign_flutter: ^0.2.0 
+  tdesign_flutter: ^0.2.6
   rxdart: any
 
 
@@ -90,3 +90,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+dependency_overrides:
+  tdesign_flutter_adaptation: 3.16.0
+  image_picker: 1.0.8
