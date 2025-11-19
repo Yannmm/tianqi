@@ -49,7 +49,6 @@ class _ShrinkHeaderDelegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     final double progress = shrinkOffset / (maxExtent - minExtent);
-
     return SizedBox.expand(
       child: Opacity(
         opacity: 1 - progress.clamp(0, 1),
