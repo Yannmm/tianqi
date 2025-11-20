@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:tianqi/view/refuel_form.dart';
 import 'package:tianqi/view/refuel_form1.dart';
+import 'package:tianqi/view/refuel_log_form.dart';
 import 'dart:math' as math;
 
 import 'package:tianqi/view/ui_utility.dart';
@@ -81,6 +81,15 @@ class _DashboardPageState extends State<DashboardPage> {
   final double _widgetBHeight = 300.0;
 
   final double _listCornerRadius = 25.0;
+
+  @override
+  void initState() {
+    _dragController.addListener(() {
+      print('Current size: ${_dragController.size}');
+      // You can trigger UI updates, BLoC events, etc.
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -176,79 +185,22 @@ class _DashboardPageState extends State<DashboardPage> {
       );
 
   void _addExpense() {
-    // Navigator.of(context).push(
-    //   TDSlidePopupRoute(
-    //       isDismissible: false,
-    //       slideTransitionFrom: SlideTransitionFrom.bottom,
-    //       builder: (context) {
-    //         return SizedBox(
-    //           height: kGetModalSheetHeight1(context),
-    //           child: TDPopupBottomDisplayPanel(
-    //             // hideClose: true,
-    //             title: 'Log Refuel',
-    //             // closeColor: TDTheme.of(context).errorNormalColor,
-    //             // closeClick: () => Navigator.maybePop(context),
-    //             rightClick: () {
-    //               TDToast.showText('确定', context: context);
-    //               Navigator.maybePop(context);
-    //             },
-    //             child: Container(
-    //               height: 200,
-    //               color: Colors.green,
-    //             ),
-    //             // draggable: true,
-    //             radius: 6,
-    //           ),
-    //         );
-    //       }),
-    // );
-
-    // Navigator.of(context).push(
-    //   TDSlidePopupRoute(
-    //     slideTransitionFrom: SlideTransitionFrom.bottom,
-    //     builder: (context) {
-    //       return TDPopupBottomConfirmPanel(
-    //         title: '标题文字',
-    //         leftClick: () {
-    //           Navigator.maybePop(context);
-    //         },
-    //         rightText: '',
-    //         // rightText: "123",
-    //         // rightClick: () {
-    //         //   TDToast.showText('确定', context: context);
-    //         //   Navigator.maybePop(context);
-    //         // },
-    //         child: Container(height: 200),
-    //       );
-    //     },
-    //   ),
-    // );
-
-    // Navigator.of(context).push(
-    //   TDSlidePopupRoute(
-    //       slideTransitionFrom: SlideTransitionFrom.bottom,
-    //       builder: (context) {
-    //         return TDPopupBottomDisplayPanel(
-    //           titleLeft: true,
-    //           // draggable: false,
-    //           title: 'Log Refuel',
-    //           closeColor: TDTheme.of(context).errorNormalColor,
-    //           hideClose: false,
-    //           closeClick: () => Navigator.maybePop(context),
-    //           child: ListView(),
-    //         );
-    //       }),
-    // );
     final xx = (kGetModalSheetHeight2(context) - kBottomNavigationBarHeight) /
         kGetModalSheetHeight2(context);
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
+      // enableDrag: false, // Prevent drag to dismiss
+      isDismissible: false, // Prevent tap outside to dismiss (optional)
       builder: (context) {
         return DraggableScrollableSheet(
+          controller: _dragController,
           maxChildSize: xx,
-          expand: true,
+          minChildSize: 0.5, // ❗ SAME as initialChildSize
+          initialChildSize: 0.5,
+          shouldCloseOnMinExtent: false,
+          expand: false,
           snap: true,
           builder: (_, controller) {
             return SingleChildScrollView(
@@ -264,21 +216,23 @@ class _DashboardPageState extends State<DashboardPage> {
                       borderRadius: BorderRadius.circular(24.0),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24.0),
-                    child: Column(
-                      children: [
-                        ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: 50,
-                          physics: const ClampingScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return ListTile(title: Text('Item $index'));
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: const EdgeInsets.symmetric(vertical: 24.0),
+                  //   child: Column(
+                  //     children: [
+                  //       ListView.builder(
+                  //         shrinkWrap: true,
+                  //         itemCount: 50,
+                  //         physics: const ClampingScrollPhysics(),
+                  //         itemBuilder: (context, index) {
+                  //           return ListTile(title: Text('Item $index'));
+                  //         },
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  SizedBox(height: 24),
+                  RefuelLogForm()
                 ],
               ),
             );
@@ -287,6 +241,8 @@ class _DashboardPageState extends State<DashboardPage> {
       },
     );
   }
+
+  final _dragController = DraggableScrollableController();
 }
 
 // This custom delegate is the "magic" that makes Widget B shrink.
@@ -352,78 +308,4 @@ class WidgetBDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-void _showQuarterModal(BuildContext context) {
-  showModalBottomSheet(
-    context: context,
-    // Prevent tapping the scrim to dismiss
-    isDismissible: false,
-    // Prevent dragging down to dismiss
-    enableDrag: false,
-    // Makes the modal's background transparent so we control corner rounding
-    backgroundColor: Colors.transparent,
-    // Dimmed background color
-    barrierColor: Colors.black54,
-    builder: (context) {
-      final height = MediaQuery.of(context).size.height * 0.75;
-      return WillPopScope(
-        // Prevent system back button from closing the sheet
-        onWillPop: () async => false,
-        child: Container(
-          height: height,
-          // The rounding and background color are applied here
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Column(
-              children: [
-                // Top row with close button on the right
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  child: Row(
-                    children: [
-                      const SizedBox(
-                          width: 48), // placeholder to keep X right-aligned
-                      const Expanded(child: SizedBox()), // center space
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.of(context).pop(),
-                        tooltip: 'Close',
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Divider to separate header from content (optional)
-                const Divider(height: 1),
-
-                // Contents
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: List.generate(
-                        20,
-                        (i) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text('Sheet item ${i + 1}'),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    },
-  );
-}
+final List<CollapseDataItem> _accordionData = generateItems(5);
