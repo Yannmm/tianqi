@@ -239,14 +239,16 @@ class _DashboardPageState extends State<DashboardPage> {
     //         );
     //       }),
     // );
-
+    final xx = (kGetModalSheetHeight2(context) - kBottomNavigationBarHeight) /
+        kGetModalSheetHeight2(context);
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       builder: (context) {
         return DraggableScrollableSheet(
-          expand: false,
+          maxChildSize: xx,
+          expand: true,
           snap: true,
           builder: (_, controller) {
             return SingleChildScrollView(
