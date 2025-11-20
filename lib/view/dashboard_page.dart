@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:tianqi/view/refuel_form.dart';
+import 'package:tianqi/view/refuel_form1.dart';
 import 'dart:math' as math;
 
 import 'package:tianqi/view/ui_utility.dart';
@@ -223,17 +224,65 @@ class _DashboardPageState extends State<DashboardPage> {
     //   ),
     // );
 
-    Navigator.of(context).push(
-      TDSlidePopupRoute(
-          slideTransitionFrom: SlideTransitionFrom.bottom,
-          builder: (context) {
-            return TDPopupBottomDisplayPanel(
-              title: '标题文字标题文字标题文字标题文字标题文字标题文字标题文字',
-              closeColor: TDTheme.of(context).errorNormalColor,
-              closeClick: () => Navigator.maybePop(context),
-              child: RefuelForm(),
+    // Navigator.of(context).push(
+    //   TDSlidePopupRoute(
+    //       slideTransitionFrom: SlideTransitionFrom.bottom,
+    //       builder: (context) {
+    //         return TDPopupBottomDisplayPanel(
+    //           titleLeft: true,
+    //           // draggable: false,
+    //           title: 'Log Refuel',
+    //           closeColor: TDTheme.of(context).errorNormalColor,
+    //           hideClose: false,
+    //           closeClick: () => Navigator.maybePop(context),
+    //           child: ListView(),
+    //         );
+    //       }),
+    // );
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          snap: true,
+          builder: (_, controller) {
+            return SingleChildScrollView(
+              controller: controller,
+              child: Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 8.0),
+                    width: 30.0,
+                    height: 3.0,
+                    decoration: BoxDecoration(
+                      color: Colors.yellow,
+                      borderRadius: BorderRadius.circular(24.0),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24.0),
+                    child: Column(
+                      children: [
+                        ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: 50,
+                          physics: const ClampingScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            return ListTile(title: Text('Item $index'));
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             );
-          }),
+          },
+        );
+      },
     );
   }
 }

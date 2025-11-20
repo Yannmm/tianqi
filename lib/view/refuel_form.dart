@@ -258,7 +258,7 @@ class _RefuelFormState extends State<RefuelForm> {
         isHorizontal: _isFormHorizontal,
         rules: _validationRules,
         formContentAlign: TextAlign.left,
-        requiredMark: true,
+        requiredMark: false,
 
         /// 确定整个表单是否展示提示信息
         formShowErrorMessage: true,
@@ -274,27 +274,30 @@ class _RefuelFormState extends State<RefuelForm> {
 
             /// 控制单个 item 是否展示错误提醒
             showErrorMessage: true,
-            requiredMark: true,
-            child: TDInput(
-                leftContentSpace: 0,
-                inputDecoration: InputDecoration(
-                  hintText: '请输入用户名',
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(
-                    color: TDTheme.of(context).textColorPlaceholder,
+            requiredMark: false,
+            child: Container(
+              color: Colors.green,
+              child: TDInput(
+                  leftContentSpace: 0,
+                  inputDecoration: InputDecoration(
+                    hintText: '请输入用户名',
+                    border: InputBorder.none,
+                    hintStyle: TextStyle(
+                      color: TDTheme.of(context).textColorPlaceholder,
+                    ),
                   ),
-                ),
-                controller: _controller[0],
-                additionInfoColor: TDTheme.of(context).errorColor6,
-                showBottomDivider: false,
-                readOnly: _formDisableState,
-                onChanged: (val) {
-                  _formItemNotifier['name']?.upDataForm(val);
-                },
-                onClearTap: () {
-                  _controller[0].clear();
-                  _formItemNotifier['name']?.upDataForm('');
-                }),
+                  controller: _controller[0],
+                  additionInfoColor: TDTheme.of(context).errorColor6,
+                  showBottomDivider: false,
+                  readOnly: _formDisableState,
+                  onChanged: (val) {
+                    _formItemNotifier['name']?.upDataForm(val);
+                  },
+                  onClearTap: () {
+                    _controller[0].clear();
+                    _formItemNotifier['name']?.upDataForm('');
+                  }),
+            ),
           ),
           TDFormItem(
             label: '密码',
