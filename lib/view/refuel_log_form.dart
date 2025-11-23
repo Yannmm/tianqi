@@ -31,7 +31,7 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
   //     );
 
   @override
-  Widget build(BuildContext context) => RefuelForm();
+  Widget build(BuildContext context) => SizedBox.shrink();
 }
 
 const kSections = ['Purchase', 'Odometer & Tank', 'Notes & Attachments'];

@@ -32,6 +32,8 @@ dependencies:
     sdk: flutter
   tdesign_flutter: ^0.2.6
   rxdart: any
+  expansion_tile_group: ^2.3.0
+  expandable: ^5.0.1
 
 
   # The following adds the Cupertino Icons font to your application.

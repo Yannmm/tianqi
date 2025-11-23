@@ -65,6 +65,22 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.4.0"
+  expandable:
+    dependency: "direct main"
+    description:
+      name: expandable
+      sha256: "9604d612d4d1146dafa96c6d8eec9c2ff0994658d6d09fed720ab788c7f5afc2"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "5.0.1"
+  expansion_tile_group:
+    dependency: "direct main"
+    description:
+      name: expansion_tile_group
+      sha256: "894c5088d94dda5d1ddde50463881935ff41b15850fe674605b9003d09716c8e"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.3.0"
   fake_async:
     dependency: transitive
     description:
