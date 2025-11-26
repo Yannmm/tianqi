@@ -137,18 +137,22 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
 
   final Map<String, String> _radios = {'0': '男', '1': '女', '3': '保密'};
 
+  String _selected_1 = '';
+
   Widget _buildForm(BuildContext context) {
     final theme = TDTheme.of(context);
-    return Container(
-      color: Colors.red,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TDForm(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            padding: EdgeInsets.zero,
+          ),
+          child: TDForm(
             formController: _formController,
             disabled: false,
             data: _formData,
-            isHorizontal: true,
+            isHorizontal: false,
             rules: {},
             formContentAlign: TextAlign.left,
             requiredMark: false,
@@ -157,68 +161,72 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
             formShowErrorMessage: true,
             onSubmit: () {},
             items: [
-              // TDFormItem(
-              //   label: '用户名',
-              //   name: 'name',
-              //   type: TDFormItemType.input,
-              //   help: '请输入用户名',
-              //   labelWidth: 82.0,
-              //   formItemNotifier: _formItemNotifier['name'],
+              TDFormItem(
+                label: '付款金额',
+                name: 'name',
+                type: TDFormItemType.input,
+                // help: '请输入用户名',
+                labelWidth: 82.0,
+                formItemNotifier: _formItemNotifier['name'],
 
-              //   /// 控制单个 item 是否展示错误提醒
-              //   showErrorMessage: true,
-              //   requiredMark: true,
-              //   child: TDInput(
-              //       leftContentSpace: 0,
-              //       inputDecoration: InputDecoration(
-              //         hintText: '请输入用户名',
-              //         border: InputBorder.none,
-              //         hintStyle: TextStyle(
-              //           color: TDTheme.of(context).textColorPlaceholder,
-              //         ),
-              //       ),
-              //       controller: _editingController1,
-              //       additionInfoColor: TDTheme.of(context).errorColor6,
-              //       showBottomDivider: false,
-              //       readOnly: false,
-              //       onChanged: (val) {
-              //         _formItemNotifier['name']?.upDataForm(val);
-              //       },
-              //       onClearTap: () {
-              //         _editingController1.clear();
-              //         _formItemNotifier['name']?.upDataForm('');
-              //       }),
-              // ),
-              // TDFormItem(
-              //   label: '密码',
-              //   name: 'password',
-              //   type: TDFormItemType.input,
-              //   labelWidth: 82.0,
-              //   formItemNotifier: _formItemNotifier['password'],
-              //   showErrorMessage: true,
-              //   child: TDInput(
-              //       leftContentSpace: 0,
-              //       inputDecoration: InputDecoration(
-              //         hintText: '请输入密码',
-              //         border: InputBorder.none,
-              //         hintStyle: TextStyle(
-              //           color: TDTheme.of(context).textColorPlaceholder,
-              //         ),
-              //       ),
-              //       type: TDInputType.normal,
-              //       controller: _editingController2,
-              //       obscureText: true,
-              //       needClear: false,
-              //       readOnly: false,
-              //       showBottomDivider: false,
-              //       onChanged: (val) {
-              //         _formItemNotifier['password']?.upDataForm(val);
-              //       },
-              //       onClearTap: () {
-              //         _editingController2.clear();
-              //         _formItemNotifier['password']?.upDataForm('');
-              //       }),
-              // ),
+                /// 控制单个 item 是否展示错误提醒
+                showErrorMessage: true,
+                requiredMark: true,
+                child: TDInput(
+                    rightWidget:
+                        Container(color: Colors.red, child: Text('元/升')),
+                    rightBtn: null,
+                    inputType: TextInputType.number,
+                    leftContentSpace: 0,
+                    inputDecoration: InputDecoration(
+                      hintText: '请输入用户名',
+                      border: InputBorder.none,
+                      hintStyle: TextStyle(
+                        color: TDTheme.of(context).textColorPlaceholder,
+                      ),
+                    ),
+                    controller: _editingController1,
+                    additionInfoColor: TDTheme.of(context).errorColor6,
+                    showBottomDivider: false,
+                    readOnly: false,
+                    onChanged: (val) {
+                      _formItemNotifier['name']?.upDataForm(val);
+                    },
+                    onClearTap: () {
+                      _editingController1.clear();
+                      _formItemNotifier['name']?.upDataForm('');
+                    }),
+              ),
+              TDFormItem(
+                label: '密码',
+                name: 'password',
+                type: TDFormItemType.input,
+                labelWidth: 82.0,
+                formItemNotifier: _formItemNotifier['password'],
+                showErrorMessage: true,
+                child: TDInput(
+                    leftContentSpace: 0,
+                    inputDecoration: InputDecoration(
+                      hintText: '请输入密码',
+                      border: InputBorder.none,
+                      hintStyle: TextStyle(
+                        color: TDTheme.of(context).textColorPlaceholder,
+                      ),
+                    ),
+                    type: TDInputType.normal,
+                    controller: _editingController2,
+                    obscureText: true,
+                    needClear: false,
+                    readOnly: false,
+                    showBottomDivider: false,
+                    onChanged: (val) {
+                      _formItemNotifier['password']?.upDataForm(val);
+                    },
+                    onClearTap: () {
+                      _editingController2.clear();
+                      _formItemNotifier['password']?.upDataForm('');
+                    }),
+              ),
               TDFormItem(
                 label: '性别',
                 name: 'gender',
@@ -250,34 +258,34 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
                   },
                 ),
               ),
-              // TDFormItem(
-              //   label: '生日',
-              //   name: 'birth',
-              //   labelWidth: 82.0,
-              //   type: TDFormItemType.dateTimePicker,
-              //   contentAlign: TextAlign.left,
-              //   tipAlign: TextAlign.left,
-              //   formItemNotifier: _formItemNotifier['birth'],
-              //   hintText: '请输入内容',
-              //   select: _selected_1,
-              //   selectFn: (BuildContext context) {
-              //     if (_formDisableState) {
-              //       return;
-              //     }
-              //     TDPicker.showDatePicker(context, title: '选择时间',
-              //         onConfirm: (selected) {
-              //       setState(() {
-              //         _selected_1 =
-              //             '${selected['year'].toString().padLeft(4, '0')}-${selected['month'].toString().padLeft(2, '0')}-${selected['day'].toString().padLeft(2, '0')}';
-              //         _formItemNotifier['birth']?.upDataForm(_selected_1);
-              //       });
-              //       Navigator.of(context).pop();
-              //     },
-              //         dateStart: [1999, 01, 01],
-              //         dateEnd: [2050, 12, 31],
-              //         initialDate: [2012, 1, 1]);
-              //   },
-              // ),
+              TDFormItem(
+                label: '生日',
+                name: 'birth',
+                labelWidth: 82.0,
+                type: TDFormItemType.dateTimePicker,
+                contentAlign: TextAlign.left,
+                tipAlign: TextAlign.left,
+                formItemNotifier: _formItemNotifier['birth'],
+                hintText: '请输入内容',
+                select: _selected_1,
+                selectFn: (BuildContext context) {
+                  // if (_formDisableState) {
+                  //   return;
+                  // }
+                  TDPicker.showDatePicker(context, title: '选择时间',
+                      onConfirm: (selected) {
+                    setState(() {
+                      _selected_1 =
+                          '${selected['year'].toString().padLeft(4, '0')}-${selected['month'].toString().padLeft(2, '0')}-${selected['day'].toString().padLeft(2, '0')}';
+                      _formItemNotifier['birth']?.upDataForm(_selected_1);
+                    });
+                    Navigator.of(context).pop();
+                  },
+                      dateStart: [1999, 01, 01],
+                      dateEnd: [2050, 12, 31],
+                      initialDate: [2012, 1, 1]);
+                },
+              ),
               // TDFormItem(
               //   label: '籍贯',
               //   name: 'place',
@@ -473,10 +481,27 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
             //     ))
             // ]
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
 const kSections = ['Purchase', 'Odometer & Tank', 'Notes & Attachments'];
+
+
+
+//  TDInput(
+//       type: TDInputType.cardStyle,
+//       width: MediaQuery.of(context).size.width - 32,
+//       leftLabel: '标签文字',
+//       controller: controller[21],
+//       hintText: '请输入文字',
+//       onChanged: (text) {
+//         setState(() {});
+//       },
+//       onClearTap: () {
+//         controller[21].clear();
+//         setState(() {});
+//       },
+//     );
