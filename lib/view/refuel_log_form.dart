@@ -152,7 +152,7 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
             formController: _formController,
             disabled: false,
             data: _formData,
-            isHorizontal: false,
+            isHorizontal: true,
             rules: {},
             formContentAlign: TextAlign.left,
             requiredMark: false,
@@ -161,6 +161,61 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
             formShowErrorMessage: true,
             onSubmit: () {},
             items: [
+              TDFormItem(
+                label: '生日',
+                name: 'birth',
+                labelWidth: 82.0,
+                type: TDFormItemType.dateTimePicker,
+                contentAlign: TextAlign.left,
+                tipAlign: TextAlign.left,
+                formItemNotifier: _formItemNotifier['birth'],
+                hintText: '请输入内容',
+                select: _selected_1,
+                selectFn: (BuildContext context) {
+                  TDPicker.showDatePicker(
+                    filterItems: (key, nums) {
+                      if (key == DateTypeKey.minute) {
+                        return nums
+                            .where((element) => element % 2 == 0)
+                            .toList();
+                      }
+                      return nums;
+                    },
+                    context,
+                    title: '选择时间',
+                    onConfirm: (selected) {
+                      setState(() {
+                        _selected_1 =
+                            '${selected['year'].toString().padLeft(4, '0')}-'
+                            '${selected['month'].toString().padLeft(2, '0')}-'
+                            '${selected['day'].toString().padLeft(2, '0')} '
+                            '${selected['hour'].toString().padLeft(2, '0')}:'
+                            '${selected['minute'].toString().padLeft(2, '0')}:';
+                        // '${selected['second'].toString().padLeft(2, '0')}';
+                      });
+                      Navigator.of(context).pop();
+                    },
+                    useHour: true,
+                    useMinute: true,
+                    useSecond: false,
+                    dateStart: [1999, 01, 01],
+                    dateEnd: [2023, 12, 31],
+                    initialDate: [2012, 1, 1],
+                  );
+                  // TDPicker.showDatePicker(context, title: '选择时间',
+                  //     onConfirm: (selected) {
+                  //   setState(() {
+                  //     _selected_1 =
+                  //         '${selected['year'].toString().padLeft(4, '0')}-${selected['month'].toString().padLeft(2, '0')}-${selected['day'].toString().padLeft(2, '0')}';
+                  //     _formItemNotifier['birth']?.upDataForm(_selected_1);
+                  //   });
+                  //   Navigator.of(context).pop();
+                  // },
+                  //     dateStart: [1999, 01, 01],
+                  //     dateEnd: [2050, 12, 31],
+                  //     initialDate: [2012, 1, 1]);
+                },
+              ),
               TDFormItem(
                 label: '付款金额',
                 name: 'name',
@@ -173,8 +228,16 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
                 showErrorMessage: true,
                 requiredMark: true,
                 child: TDInput(
-                    rightWidget:
-                        Container(color: Colors.red, child: Text('元/升')),
+                    rightWidget: Container(
+                        // color: Colors.red,
+                        child: Text(
+                      '元',
+                      style: TextStyle(
+                        fontSize: TDTheme.of(context).fontTitleLarge?.size,
+                        // color: TDTheme.of(context).textColorPrimary,
+                        color: TDTheme.of(context).textColorSecondary,
+                      ),
+                    )),
                     rightBtn: null,
                     inputType: TextInputType.number,
                     leftContentSpace: 0,
@@ -184,6 +247,10 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
                       hintStyle: TextStyle(
                         color: TDTheme.of(context).textColorPlaceholder,
                       ),
+                    ),
+                    textStyle: TextStyle(
+                      fontSize: TDTheme.of(context).fontTitleLarge?.size,
+                      color: TDTheme.of(context).textColorPrimary,
                     ),
                     controller: _editingController1,
                     additionInfoColor: TDTheme.of(context).errorColor6,
@@ -258,34 +325,7 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
                   },
                 ),
               ),
-              TDFormItem(
-                label: '生日',
-                name: 'birth',
-                labelWidth: 82.0,
-                type: TDFormItemType.dateTimePicker,
-                contentAlign: TextAlign.left,
-                tipAlign: TextAlign.left,
-                formItemNotifier: _formItemNotifier['birth'],
-                hintText: '请输入内容',
-                select: _selected_1,
-                selectFn: (BuildContext context) {
-                  // if (_formDisableState) {
-                  //   return;
-                  // }
-                  TDPicker.showDatePicker(context, title: '选择时间',
-                      onConfirm: (selected) {
-                    setState(() {
-                      _selected_1 =
-                          '${selected['year'].toString().padLeft(4, '0')}-${selected['month'].toString().padLeft(2, '0')}-${selected['day'].toString().padLeft(2, '0')}';
-                      _formItemNotifier['birth']?.upDataForm(_selected_1);
-                    });
-                    Navigator.of(context).pop();
-                  },
-                      dateStart: [1999, 01, 01],
-                      dateEnd: [2050, 12, 31],
-                      initialDate: [2012, 1, 1]);
-                },
-              ),
+
               // TDFormItem(
               //   label: '籍贯',
               //   name: 'place',
