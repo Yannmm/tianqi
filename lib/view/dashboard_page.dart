@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:tianqi/bloc/log_refuel_bloc.dart';
 import 'package:tianqi/view/refuel_form1.dart';
 import 'package:tianqi/view/refuel_log_form.dart';
 import 'dart:math' as math;
@@ -232,7 +234,10 @@ class _DashboardPageState extends State<DashboardPage> {
                   //   ),
                   // ),
                   SizedBox(height: 24),
-                  RefuelLogForm()
+                  Provider(
+                    create: (_) => LogRefuelBloc(),
+                    child: const RefuelLogForm(),
+                  ),
                 ],
               ),
             );
