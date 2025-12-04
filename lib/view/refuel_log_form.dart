@@ -30,8 +30,14 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
   void initState() {
     final bloc = Provider.of<LogRefuelBloc>(context, listen: false);
 
-    bloc.actualAmountPaid.first.then(
-        (value) => _actualAmountPaidEditingController.text = value.toString());
+    bloc.actualAmountPaid.whereNotNull().distinct().listen((value) =>
+        _actualAmountPaidEditingController.text = value.toStringAsFixed(0));
+
+    bloc.fuelQuantity.whereNotNull().distinct().listen((value) =>
+        _fuelQuantityEditingController.text = value.toStringAsFixed(0));
+
+    bloc.gasPrice.whereNotNull().distinct().listen(
+        (value) => _gasPriceEditingController.text = value.toStringAsFixed(1));
 
     _expandableController.addListener(() {
       _paymentDescription.add(
@@ -133,13 +139,14 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
         fontSize: TDTheme.of(context).fontTitleLarge?.size,
         color: TDTheme.of(context).textColorPrimary,
       ),
-      controller: _actualAmountPaidEditingController,
+      controller: _fuelQuantityEditingController,
       additionInfoColor: TDTheme.of(context).errorColor6,
       showBottomDivider: false,
       readOnly: false,
-      onChanged: (val) {},
+      onChanged: (value) => Provider.of<LogRefuelBloc>(context, listen: false)
+          .setFuelQuantity(double.tryParse(value) ?? 0),
       onClearTap: () {
-        _actualAmountPaidEditingController.clear();
+        _fuelQuantityEditingController.clear();
       });
 
   Widget _buildGasPriceInput() => TDInput(
@@ -163,13 +170,14 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
         fontSize: TDTheme.of(context).fontTitleLarge?.size,
         color: TDTheme.of(context).textColorPrimary,
       ),
-      controller: _actualAmountPaidEditingController,
+      controller: _gasPriceEditingController,
       additionInfoColor: TDTheme.of(context).errorColor6,
       showBottomDivider: false,
       readOnly: false,
-      onChanged: (val) {},
+      onChanged: (value) => Provider.of<LogRefuelBloc>(context, listen: false)
+          .setGasPrice(double.tryParse(value) ?? 0),
       onClearTap: () {
-        _actualAmountPaidEditingController.clear();
+        _gasPriceEditingController.clear();
       });
 
   Widget _expandableSection(Widget expanded) {

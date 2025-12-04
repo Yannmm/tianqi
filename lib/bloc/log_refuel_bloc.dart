@@ -9,23 +9,34 @@ class LogRefuelBloc {
   void setTime(DateTime value) => _time.add(value);
 
   /// Actual amount paid
-  final _actualAmountPaid = ReplaySubject<double>(maxSize: 1);
+  final _actualAmountPaid = BehaviorSubject<double?>.seeded(null);
 
-  Stream<double> get actualAmountPaid => _actualAmountPaid;
+  Stream<double?> get actualAmountPaid => _actualAmountPaid;
 
-  void setActualAmountPaid(double value) => _actualAmountPaid.add(value);
+  void setActualAmountPaid(double? value) => _actualAmountPaid.add(value);
 
   /// Fuel quantity
-  final _fuelQuantity = ReplaySubject<double>(maxSize: 1);
+  final _fuelQuantity = BehaviorSubject<double?>.seeded(null);
 
-  Stream<double> get fuelQuantity => _fuelQuantity;
+  Stream<double?> get fuelQuantity => _fuelQuantity;
 
-  void setFuelQuantity(double value) => _fuelQuantity.add(value);
+  void setFuelQuantity(double? value) => _fuelQuantity.add(value);
 
   /// Gas price
-  final _gasPrice = ReplaySubject<double>(maxSize: 1);
+  final _gasPrice = BehaviorSubject<double?>.seeded(null);
 
-  Stream<double> get gasPrice => _gasPrice;
+  Stream<double?> get gasPrice => _gasPrice;
 
-  void setGasPrice(double value) => _gasPrice.add(value);
+  void setGasPrice(double? value) => _gasPrice.add(value);
+
+  LogRefuelBloc() {
+    _bind();
+  }
+
+  void _bind() {
+    Rx.combineLatest2(_actualAmountPaid.whereNotNull(),
+            _fuelQuantity.whereNotNull(), (a, b) => a / b)
+        .withLatestFrom(_gasPrice.where((event) => event == null), (a, b) => a)
+        .listen(_gasPrice.add);
+  }
 }
