@@ -36,8 +36,12 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
     bloc.fuelQuantity.whereNotNull().distinct().listen((value) =>
         _fuelQuantityEditingController.text = value.toStringAsFixed(0));
 
+    _fuelQuantityEditingController.addListener(() {
+      print("${_fuelQuantityEditingController.text}");
+    });
+
     bloc.gasPrice.whereNotNull().distinct().listen(
-        (value) => _gasPriceEditingController.text = value.toStringAsFixed(1));
+        (value) => _gasPriceEditingController.text = formatDouble(value));
 
     _expandableController.addListener(() {
       _paymentDescription.add(
@@ -111,8 +115,9 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
         additionInfoColor: TDTheme.of(context).errorColor6,
         showBottomDivider: false,
         readOnly: false,
-        onChanged: (value) =>
-            bloc.setActualAmountPaid(double.tryParse(value) ?? 0),
+        onChanged: (value) {
+          bloc.setActualAmountPaid(double.tryParse(value));
+        },
         onClearTap: () {
           _actualAmountPaidEditingController.clear();
         });
@@ -143,8 +148,10 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
       additionInfoColor: TDTheme.of(context).errorColor6,
       showBottomDivider: false,
       readOnly: false,
-      onChanged: (value) => Provider.of<LogRefuelBloc>(context, listen: false)
-          .setFuelQuantity(double.tryParse(value) ?? 0),
+      onChanged: (value) {
+        Provider.of<LogRefuelBloc>(context, listen: false)
+            .setFuelQuantity(double.tryParse(value));
+      },
       onClearTap: () {
         _fuelQuantityEditingController.clear();
       });
@@ -174,8 +181,10 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
       additionInfoColor: TDTheme.of(context).errorColor6,
       showBottomDivider: false,
       readOnly: false,
-      onChanged: (value) => Provider.of<LogRefuelBloc>(context, listen: false)
-          .setGasPrice(double.tryParse(value) ?? 0),
+      onChanged: (value) {
+        Provider.of<LogRefuelBloc>(context, listen: false)
+            .setGasPrice(double.tryParse(value));
+      },
       onClearTap: () {
         _gasPriceEditingController.clear();
       });
@@ -240,6 +249,14 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
         ),
       ),
     ));
+  }
+
+  String formatDouble(double value) {
+    if (value % 1 == 0) {
+      return value.toInt().toString(); // No decimals
+    } else {
+      return value.toString(); // Keep decimals
+    }
   }
 }
 
