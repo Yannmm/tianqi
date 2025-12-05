@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +19,8 @@ class RefuelLogForm extends StatefulWidget {
 }
 
 class _RefuelLogFormState extends State<RefuelLogForm> {
+  final subscriptions = <StreamSubscription>[];
+
   final _expandableController = ExpandableController(initialExpanded: false);
 
   final _paymentDescription = BehaviorSubject<String>.seeded('Collapsed');
@@ -26,6 +30,12 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
   final _fuelQuantityEditingController = TextEditingController();
 
   final _gasPriceEditingController = TextEditingController();
+
+  final _actualAmountPaidFocusNode = FocusNode();
+
+  final _fuelQuantityFocusNode = FocusNode();
+
+  final _gasPriceFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -45,7 +55,52 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
           _expandableController.expanded ? 'Payment Details' : 'Collapsed');
     });
 
+    _actualAmountPaidFocusNode.addListener(() {
+      _onPaymentSectionFocusChange();
+    });
+
+    _fuelQuantityFocusNode.addListener(() {
+      _onPaymentSectionFocusChange();
+    });
+
+    _gasPriceFocusNode.addListener(() {
+      _onPaymentSectionFocusChange();
+    });
+
     super.initState();
+  }
+
+  void _onPaymentSectionFocusChange() async {
+    subscriptions.forEach((s) => s.cancel());
+    if ([
+          _actualAmountPaidFocusNode.hasFocus,
+          _fuelQuantityFocusNode.hasFocus,
+          _gasPriceFocusNode.hasFocus
+        ].where((event) => event).length >
+        1) return;
+
+    final bloc = Provider.of<LogRefuelBloc>(context, listen: false);
+    subscriptions.addAll([
+      if (_actualAmountPaidFocusNode.hasFocus ||
+          _fuelQuantityFocusNode.hasFocus)
+        Rx.combineLatest3(
+            bloc.actualAmountPaid.whereNotNull().distinct(),
+            bloc.fuelQuantity.whereNotNull().distinct(),
+            bloc.gasPrice.where((event) => event == null),
+            (a, b, _) => a / b).listen(bloc.setGasPrice),
+      if (_actualAmountPaidFocusNode.hasFocus || _gasPriceFocusNode.hasFocus)
+        Rx.combineLatest3(
+            bloc.actualAmountPaid.whereNotNull().distinct(),
+            bloc.gasPrice.whereNotNull().distinct(),
+            bloc.fuelQuantity.where((event) => event == null),
+            (a, b, _) => a / b).listen(bloc.setFuelQuantity),
+      if (_fuelQuantityFocusNode.hasFocus || _gasPriceFocusNode.hasFocus)
+        Rx.combineLatest3(
+            bloc.fuelQuantity.whereNotNull().distinct(),
+            bloc.gasPrice.whereNotNull().distinct(),
+            bloc.actualAmountPaid.where((event) => event == null),
+            (a, b, _) => a * b).listen(bloc.setActualAmountPaid)
+    ]);
   }
 
   @override
@@ -88,6 +143,7 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
   Widget _buildActualAmountPaidInput() {
     final bloc = Provider.of<LogRefuelBloc>(context, listen: false);
     return TDInput(
+        focusNode: _actualAmountPaidFocusNode,
         rightWidget: Text(
           '元',
           style: TextStyle(
@@ -121,6 +177,7 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
   }
 
   Widget _buildFuelQuantityInput() => TDInput(
+      focusNode: _fuelQuantityFocusNode,
       rightWidget: Text(
         '升',
         style: TextStyle(
@@ -154,6 +211,7 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
       });
 
   Widget _buildGasPriceInput() => TDInput(
+      focusNode: _gasPriceFocusNode,
       rightWidget: Text(
         '元/升',
         style: TextStyle(

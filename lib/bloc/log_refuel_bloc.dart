@@ -34,10 +34,10 @@ class LogRefuelBloc {
   }
 
   void _bind() {
-    Rx.combineLatest3(
-        _actualAmountPaid.whereNotNull(),
-        _fuelQuantity.whereNotNull(),
-        _gasPrice.where((event) => event == null),
-        (a, b, c) => a / b).listen(_gasPrice.add);
+    // Rx.combineLatest3(
+    //     _actualAmountPaid.whereNotNull(),
+    //     _fuelQuantity.whereNotNull(),
+    //     _gasPrice.where((event) => event == null),
+    //     (a, b, c) => a / b).listen(_gasPrice.add);
   }
 }
