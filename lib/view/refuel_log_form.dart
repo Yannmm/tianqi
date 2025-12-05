@@ -7,6 +7,7 @@ import 'dart:math' as math;
 import 'package:intl/intl.dart';
 import 'package:tianqi/bloc/log_refuel_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:tianqi/utility/num_extension.dart';
 
 class RefuelLogForm extends StatefulWidget {
   const RefuelLogForm({super.key});
@@ -31,17 +32,13 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
     final bloc = Provider.of<LogRefuelBloc>(context, listen: false);
 
     bloc.actualAmountPaid.whereNotNull().distinct().listen((value) =>
-        _actualAmountPaidEditingController.text = value.toStringAsFixed(0));
+        _actualAmountPaidEditingController.text = value.toStringAsItIs(2));
 
     bloc.fuelQuantity.whereNotNull().distinct().listen((value) =>
-        _fuelQuantityEditingController.text = value.toStringAsFixed(0));
-
-    _fuelQuantityEditingController.addListener(() {
-      print("${_fuelQuantityEditingController.text}");
-    });
+        _fuelQuantityEditingController.text = value.toStringAsItIs(2));
 
     bloc.gasPrice.whereNotNull().distinct().listen(
-        (value) => _gasPriceEditingController.text = formatDouble(value));
+        (value) => _gasPriceEditingController.text = value.toStringAsItIs(2));
 
     _expandableController.addListener(() {
       _paymentDescription.add(
@@ -249,14 +246,6 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
         ),
       ),
     ));
-  }
-
-  String formatDouble(double value) {
-    if (value % 1 == 0) {
-      return value.toInt().toString(); // No decimals
-    } else {
-      return value.toString(); // Keep decimals
-    }
   }
 }
 
