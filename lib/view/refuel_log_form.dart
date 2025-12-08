@@ -19,11 +19,22 @@ class RefuelLogForm extends StatefulWidget {
 }
 
 class _RefuelLogFormState extends State<RefuelLogForm> {
+  final _formKey = GlobalKey<FormBuilderState>();
+
   final subscriptions = <StreamSubscription>[];
 
-  final _expandableController = ExpandableController(initialExpanded: false);
+  final _section1ExpandableController =
+      ExpandableController(initialExpanded: false);
 
-  final _paymentDescription = BehaviorSubject<String>.seeded('Collapsed');
+  final _section2ExpandableController =
+      ExpandableController(initialExpanded: false);
+
+  final _section3ExpandableController =
+      ExpandableController(initialExpanded: false);
+
+  final _section1Description = BehaviorSubject<String>.seeded('Collapsed');
+
+  final _section2Description = BehaviorSubject<String>.seeded('123123');
 
   final _actualAmountPaidEditingController = TextEditingController();
 
@@ -50,9 +61,10 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
     bloc.gasPrice.whereNotNull().distinct().listen(
         (value) => _gasPriceEditingController.text = value.toStringAsItIs(2));
 
-    _expandableController.addListener(() {
-      _paymentDescription.add(
-          _expandableController.expanded ? 'Payment Details' : 'Collapsed');
+    _section1ExpandableController.addListener(() async {
+      _section1Description.add(_section1ExpandableController.expanded
+          ? "Payment Details"
+          : '本次加油实付 ¥284.3元 = ¥7.04元/L x 45.45L');
     });
 
     _actualAmountPaidFocusNode.addListener(() {
@@ -104,147 +116,136 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final bloc = Provider.of<LogRefuelBloc>(context, listen: false);
-    return _buildForm();
-  }
+  Widget build(BuildContext context) => FormBuilder(
+      key: _formKey,
+      child: Column(
+        children: [_buildSection1(), _buildSection2()],
+      ));
 
   final TDCheckboxGroupController _genderCheckboxGroupController =
       TDCheckboxGroupController();
 
   final Map<String, String> _radios = {'0': '男', '1': '女', '3': '保密'};
 
-  final _formKey = GlobalKey<FormBuilderState>();
-
-  Widget _buildForm() => FormBuilder(
-      key: _formKey,
-      child: Column(
-        children: [_buildSection1()],
-      ));
-
   Widget _buildSection1() {
-    return _expandableSection(Column(
-      children: [
-        FormBuilderField<DateTime?>(
-          name: 'date',
-          builder: (FormFieldState field) => Column(
+    final bloc = Provider.of<LogRefuelBloc>(context, listen: false);
+
+    return _expandableSection(
+      _section1Description,
+      _section1ExpandableController,
+      Column(
+        children: [
+          Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildActualAmountPaidInput(),
-              _buildFuelQuantityInput(),
-              _buildGasPriceInput()
+              // actualAmountPaidInput(),
+              _buildTextField(
+                  focusNode: _actualAmountPaidFocusNode,
+                  inputType: TextInputType.number,
+                  leftLabel: '实付',
+                  hintText: '请输入实付金额',
+                  textEditingController: _actualAmountPaidEditingController,
+                  rightWidget: Text(
+                    '元',
+                    style: TextStyle(
+                      fontSize: TDTheme.of(context).fontTitleLarge?.size,
+                      color: TDTheme.of(context).textColorSecondary,
+                    ),
+                  ),
+                  onChanged: (value) =>
+                      bloc.setActualAmountPaid(double.tryParse(value))),
+              _buildTextField(
+                  focusNode: _fuelQuantityFocusNode,
+                  inputType: TextInputType.number,
+                  leftLabel: '数量',
+                  hintText: '请输入加油总量',
+                  textEditingController: _fuelQuantityEditingController,
+                  rightWidget: Text(
+                    '升',
+                    style: TextStyle(
+                      fontSize: TDTheme.of(context).fontTitleLarge?.size,
+                      color: TDTheme.of(context).textColorSecondary,
+                    ),
+                  ),
+                  onChanged: (value) =>
+                      bloc.setFuelQuantity(double.tryParse(value))),
+              _buildTextField(
+                  focusNode: _gasPriceFocusNode,
+                  inputType: TextInputType.number,
+                  leftLabel: '油价',
+                  hintText: '请输入汽油价格',
+                  textEditingController: _gasPriceEditingController,
+                  rightWidget: Text(
+                    '元/升',
+                    style: TextStyle(
+                      fontSize: TDTheme.of(context).fontTitleLarge?.size,
+                      color: TDTheme.of(context).textColorSecondary,
+                    ),
+                  ),
+                  onChanged: (value) =>
+                      bloc.setGasPrice(double.tryParse(value))),
             ],
           ),
-        ),
-      ],
-    ));
+        ],
+      ),
+    );
   }
 
-  Widget _buildActualAmountPaidInput() {
-    final bloc = Provider.of<LogRefuelBloc>(context, listen: false);
-    return TDInput(
-        focusNode: _actualAmountPaidFocusNode,
-        rightWidget: Text(
-          '元',
-          style: TextStyle(
-            fontSize: TDTheme.of(context).fontTitleLarge?.size,
-            color: TDTheme.of(context).textColorSecondary,
+  Widget _buildSection2() {
+    return _expandableSection(
+      _section2Description,
+      _section2ExpandableController,
+      Column(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // actualAmountPaidInput(),
+              // fuelQuantityInput(),
+              // gasPriceInput()
+            ],
           ),
-        ),
-        leftLabel: '实付',
-        rightBtn: null,
-        inputType: TextInputType.number,
-        leftContentSpace: 20,
-        hintText: '请输入实付金额',
-        hintTextStyle: TextStyle(
-          color: TDTheme.of(context).textColorPlaceholder,
-          fontSize: TDTheme.of(context).fontTitleLarge?.size,
-        ),
-        textStyle: TextStyle(
-          fontSize: TDTheme.of(context).fontTitleLarge?.size,
-          color: TDTheme.of(context).textColorPrimary,
-        ),
-        controller: _actualAmountPaidEditingController,
-        additionInfoColor: TDTheme.of(context).errorColor6,
-        showBottomDivider: false,
-        readOnly: false,
-        onChanged: (value) {
-          bloc.setActualAmountPaid(double.tryParse(value));
-        },
-        onClearTap: () {
-          _actualAmountPaidEditingController.clear();
-        });
+        ],
+      ),
+    );
   }
 
-  Widget _buildFuelQuantityInput() => TDInput(
-      focusNode: _fuelQuantityFocusNode,
-      rightWidget: Text(
-        '升',
-        style: TextStyle(
-          fontSize: TDTheme.of(context).fontTitleLarge?.size,
-          color: TDTheme.of(context).textColorSecondary,
-        ),
-      ),
-      leftLabel: '总量',
-      rightBtn: null,
-      inputType: TextInputType.number,
-      leftContentSpace: 20,
-      hintText: '请输入加油数量',
-      hintTextStyle: TextStyle(
-        color: TDTheme.of(context).textColorPlaceholder,
-        fontSize: TDTheme.of(context).fontTitleLarge?.size,
-      ),
-      textStyle: TextStyle(
-        fontSize: TDTheme.of(context).fontTitleLarge?.size,
-        color: TDTheme.of(context).textColorPrimary,
-      ),
-      controller: _fuelQuantityEditingController,
-      additionInfoColor: TDTheme.of(context).errorColor6,
-      showBottomDivider: false,
-      readOnly: false,
-      onChanged: (value) {
-        Provider.of<LogRefuelBloc>(context, listen: false)
-            .setFuelQuantity(double.tryParse(value));
-      },
-      onClearTap: () {
-        _fuelQuantityEditingController.clear();
-      });
+  Widget _buildTextField({
+    FocusNode? focusNode,
+    Widget? rightWidget,
+    TextInputType? inputType,
+    required String leftLabel,
+    String? hintText,
+    required TextEditingController textEditingController,
+    required void Function(String)? onChanged,
+  }) =>
+      TDInput(
+          focusNode: focusNode,
+          rightWidget: rightWidget,
+          leftLabel: leftLabel,
+          rightBtn: null,
+          inputType: inputType,
+          leftContentSpace: 20,
+          hintText: hintText,
+          hintTextStyle: TextStyle(
+            color: TDTheme.of(context).textColorPlaceholder,
+            fontSize: TDTheme.of(context).fontTitleLarge?.size,
+          ),
+          textStyle: TextStyle(
+            fontSize: TDTheme.of(context).fontTitleLarge?.size,
+            color: TDTheme.of(context).textColorPrimary,
+          ),
+          controller: textEditingController,
+          additionInfoColor: TDTheme.of(context).errorColor6,
+          showBottomDivider: false,
+          readOnly: false,
+          onChanged: onChanged,
+          onClearTap: () {
+            // _gasPriceEditingController.clear();
+          });
 
-  Widget _buildGasPriceInput() => TDInput(
-      focusNode: _gasPriceFocusNode,
-      rightWidget: Text(
-        '元/升',
-        style: TextStyle(
-          fontSize: TDTheme.of(context).fontTitleLarge?.size,
-          color: TDTheme.of(context).textColorSecondary,
-        ),
-      ),
-      leftLabel: '油价',
-      rightBtn: null,
-      inputType: TextInputType.number,
-      leftContentSpace: 20,
-      hintText: '请输入汽油价格',
-      hintTextStyle: TextStyle(
-        color: TDTheme.of(context).textColorPlaceholder,
-        fontSize: TDTheme.of(context).fontTitleLarge?.size,
-      ),
-      textStyle: TextStyle(
-        fontSize: TDTheme.of(context).fontTitleLarge?.size,
-        color: TDTheme.of(context).textColorPrimary,
-      ),
-      controller: _gasPriceEditingController,
-      additionInfoColor: TDTheme.of(context).errorColor6,
-      showBottomDivider: false,
-      readOnly: false,
-      onChanged: (value) {
-        Provider.of<LogRefuelBloc>(context, listen: false)
-            .setGasPrice(double.tryParse(value));
-      },
-      onClearTap: () {
-        _gasPriceEditingController.clear();
-      });
-
-  Widget _expandableSection(Widget expanded) {
+  Widget _expandableSection(Stream<String> sectionDescription,
+      ExpandableController expandableController, Widget expanded) {
     return ExpandableNotifier(
         child: Padding(
       padding: const EdgeInsets.all(12),
@@ -254,7 +255,7 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
           child: Column(
             children: <Widget>[
               ExpandablePanel(
-                controller: _expandableController,
+                controller: expandableController,
                 theme: const ExpandableThemeData(
                   headerAlignment: ExpandablePanelHeaderAlignment.center,
                   tapBodyToExpand: true,
@@ -281,7 +282,7 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
                         ),
                         Expanded(
                           child: StreamBuilder(
-                              stream: _paymentDescription,
+                              stream: sectionDescription,
                               builder: (context, snapshot) => Text(
                                     snapshot.data ?? '',
                                     style: TextStyle(
