@@ -29,6 +29,20 @@ class LogRefuelBloc {
 
   void setGasPrice(double? value) => _gasPrice.add(value);
 
+  /// Odometer
+  final _odometer = ReplaySubject<double?>(maxSize: 1);
+
+  Stream<double?> get odometer => _odometer;
+
+  void setOdometer(double? value) => _odometer.add(value);
+
+  /// Tank level
+  final _tankLevel = BehaviorSubject<double?>.seeded(null);
+
+  Stream<double?> get tankLevel => _tankLevel;
+
+  void setTankLevel(double? value) => _tankLevel.add(value);
+
   LogRefuelBloc() {
     _bind();
   }

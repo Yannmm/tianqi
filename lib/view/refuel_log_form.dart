@@ -48,6 +48,9 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
 
   final _gasPriceFocusNode = FocusNode();
 
+  /// Tank level selection
+  final _tankLevel = BehaviorSubject<TankLevel>.seeded(TankLevel.lightOn);
+
   @override
   void initState() {
     final bloc = Provider.of<LogRefuelBloc>(context, listen: false);
@@ -64,7 +67,7 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
     _section1ExpandableController.addListener(() async {
       _section1Description.add(_section1ExpandableController.expanded
           ? "Payment Details"
-          : '本次加油实付 ¥284.3元 = ¥7.04元/L x 45.45L');
+          : '本次加油实付 \n¥284.3元 = ¥7.04元/L x 45.45L');
     });
 
     _actualAmountPaidFocusNode.addListener(() {
@@ -78,6 +81,12 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
     _gasPriceFocusNode.addListener(() {
       _onPaymentSectionFocusChange();
     });
+
+    _tankLevel
+        .map((event) => event.value)
+        .pairwise()
+        .map((event) => event[1] ?? event[0])
+        .listen(bloc.setTankLevel);
 
     super.initState();
   }
@@ -125,7 +134,12 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
   final TDCheckboxGroupController _genderCheckboxGroupController =
       TDCheckboxGroupController();
 
-  final Map<String, String> _radios = {'0': '男', '1': '女', '3': '保密'};
+  final Map<String, String> _radios = {
+    '0': '男',
+    '1': '女',
+    '3': '保密',
+    '4': '八分之一'
+  };
 
   Widget _buildSection1() {
     final bloc = Provider.of<LogRefuelBloc>(context, listen: false);
@@ -192,19 +206,168 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
   }
 
   Widget _buildSection2() {
+    final bloc = Provider.of<LogRefuelBloc>(context, listen: false);
+
+    Widget tankLevelRating() => StreamBuilder(
+        stream: bloc.tankLevel.withLatestFrom(
+            _tankLevel,
+            (b, a) => switch (a) {
+                  TankLevel.custom => "${((b ?? 0) * 100).toStringAsItIs(0)}%",
+                  TankLevel.oneEighth => '1/8 箱',
+                  TankLevel.oneFourth => '1/4 箱',
+                  TankLevel.oneThird => '1/3 箱',
+                  TankLevel.oneHalf => '1/2 箱',
+                  TankLevel.lightOn => '灯亮',
+                }),
+        builder: (context, snapshot) {
+          return TDCell(
+              title: '剩余油量',
+              noteWidget: TDRate(
+                placement: PlacementEnum.none,
+                color: [TDTheme.of(context).brandHoverColor],
+                allowHalf: false,
+                value: 1,
+                showText: true,
+                icon: const [TDIcons.saturation],
+                builderText: (context, value) {
+                  final tlevel =
+                      TankLevel.fromValue(value.toInt()) ?? TankLevel.custom;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 12.0),
+                    child: TDButton(
+                      width: 65,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                      ),
+                      icon: tlevel == TankLevel.lightOn
+                          ? TDIcons.lightbulb
+                          : null,
+                      text: snapshot.data,
+                      size: TDButtonSize.extraSmall,
+                      type: snapshot.data == TankLevel.custom
+                          ? TDButtonType.outline
+                          : TDButtonType.fill,
+                      shape: TDButtonShape.rectangle,
+                      theme: TDButtonTheme.primary,
+                      onTap: () => _tankLevel.add(TankLevel.custom),
+                    ),
+                  );
+                  // return Container(
+                  //   width: 80,
+                  //   alignment: Alignment.centerRight,
+                  //   child: switch (tlevel) {
+                  //     null => const SizedBox.shrink(),
+                  //     TankLevel.lightOn => TDText.rich(
+                  //         TextSpan(children: [
+                  //           const WidgetSpan(
+                  //             alignment: PlaceholderAlignment.middle,
+                  // child: const Icon(
+                  //   TDIcons.lightbulb,
+                  //   color: Colors.red,
+                  //   size: 20,
+                  // ),
+                  //           ),
+                  //           TextSpan(
+                  //             text: ' 灯亮',
+                  //             style: TextStyle(
+                  //               fontSize:
+                  //                   TDTheme.of(context).fontTitleLarge?.size,
+                  //               color: TDTheme.of(context).textColorPrimary,
+                  //             ),
+                  //           ),
+                  //         ]),
+                  //       ),
+                  //     _ => TDText(
+                  //         switch (tlevel) {
+                  //           TankLevel.custom => '自定义',
+                  //           TankLevel.lightOn => '油表灯亮',
+                  //           TankLevel.oneEighth => '1/8 箱',
+                  //           TankLevel.oneFourth => '1/4 箱',
+                  //           TankLevel.oneThird => '1/3 箱',
+                  //           TankLevel.oneHalf => '1/2 箱',
+                  //         },
+                  //         style: TextStyle(
+                  //           fontSize: TDTheme.of(context).fontTitleLarge?.size,
+                  //           color: TDTheme.of(context).textColorPrimary,
+                  //         ),
+                  //       )
+                  //   },
+                  // );
+                },
+                onChange: (value) => _tankLevel.add(
+                    TankLevel.fromValue(value.toInt()) ?? TankLevel.custom),
+              ));
+        });
+
+    Widget tankLevelSlider() => TDSlider(
+          sliderThemeData: TDSliderThemeData.capsule(
+            context: context,
+            showThumbValue: false,
+            min: 0,
+            max: 100,
+            scaleFormatter: (value) => value.toInt().toString() + '%',
+          ),
+          value: 40,
+          onChanged: (value) => bloc.setTankLevel(value / 100),
+        );
+
+    Widget fillUpSwitch() => const TDCell(
+          title: '是否加满',
+          noteWidget: TDSwitch(),
+        );
+
+    Widget missLogSwitch() => const TDCell(
+          title: '上次漏记',
+          noteWidget: TDSwitch(),
+        );
+
     return _expandableSection(
       _section2Description,
       _section2ExpandableController,
       Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // actualAmountPaidInput(),
-              // fuelQuantityInput(),
-              // gasPriceInput()
-            ],
+          // actualAmountPaidInput(),
+          // fuelQuantityInput(),
+          // gasPriceInput()
+          _buildTextField(
+              focusNode: _fuelQuantityFocusNode,
+              inputType: TextInputType.number,
+              leftLabel: '总里程',
+              hintText: '上次里程：123456',
+              textEditingController: _fuelQuantityEditingController,
+              rightWidget: Text(
+                '公里',
+                style: TextStyle(
+                  fontSize: TDTheme.of(context).fontTitleLarge?.size,
+                  color: TDTheme.of(context).textColorSecondary,
+                ),
+              ),
+              onChanged: (value) => bloc.setOdometer(double.tryParse(value))),
+
+          tankLevelRating(),
+          StreamBuilder(
+            stream: _tankLevel.map((event) => event == TankLevel.custom),
+            builder: (context, snapshot) => (snapshot.data ?? false)
+                ? tankLevelSlider()
+                : const SizedBox.shrink(),
           ),
+          Container(
+            color: Colors.white,
+            child: Row(
+              children: [
+                Expanded(child: missLogSwitch()),
+                const TDDivider(
+                  direction: Axis.vertical,
+                  // color: TDTheme.of(context).brandHoverColor,
+                  width: 1,
+                  height: 20,
+                ),
+                Expanded(child: fillUpSwitch()),
+              ],
+            ),
+          )
         ],
       ),
     );
@@ -225,7 +388,7 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
           leftLabel: leftLabel,
           rightBtn: null,
           inputType: inputType,
-          leftContentSpace: 20,
+          leftContentSpace: 10,
           hintText: hintText,
           hintTextStyle: TextStyle(
             color: TDTheme.of(context).textColorPlaceholder,
@@ -309,3 +472,31 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
 }
 
 const kSections = ['Payment', 'Odometer & Tank', 'Notes & Attachments'];
+
+enum TankLevel {
+  custom,
+  lightOn,
+  oneEighth,
+  oneFourth,
+  oneThird,
+  oneHalf;
+
+  static TankLevel? fromValue(int value) => switch (value) {
+        0 => TankLevel.custom,
+        1 => TankLevel.lightOn,
+        2 => TankLevel.oneEighth,
+        3 => TankLevel.oneFourth,
+        4 => TankLevel.oneThird,
+        5 => TankLevel.oneHalf,
+        _ => null,
+      };
+
+  double? get value => switch (this) {
+        TankLevel.custom => null,
+        TankLevel.lightOn => 0.1,
+        TankLevel.oneEighth => 0.125,
+        TankLevel.oneFourth => 0.25,
+        TankLevel.oneThird => 0.33,
+        TankLevel.oneHalf => 0.5,
+      };
+}
