@@ -37,11 +37,11 @@ class LogRefuelBloc {
   void setOdometer(double? value) => _odometer.add(value);
 
   /// Tank level
-  final _tankLevel = BehaviorSubject<double?>.seeded(null);
+  final _remainingOil = BehaviorSubject<double?>.seeded(null);
 
-  Stream<double?> get tankLevel => _tankLevel;
+  Stream<double?> get remainingOil => _remainingOil;
 
-  void setTankLevel(double? value) => _tankLevel.add(value);
+  void setRemainingOil(double? value) => _remainingOil.add(value);
 
   LogRefuelBloc() {
     _bind();

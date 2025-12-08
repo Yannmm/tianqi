@@ -32,7 +32,8 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
   final _section3ExpandableController =
       ExpandableController(initialExpanded: false);
 
-  final _section1Description = BehaviorSubject<String>.seeded('Collapsed');
+  /// Section1 description
+  final _section1Description = BehaviorSubject<String>.seeded('付款信息');
 
   final _section2Description = BehaviorSubject<String>.seeded('123123');
 
@@ -48,8 +49,10 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
 
   final _gasPriceFocusNode = FocusNode();
 
-  /// Tank level selection
+  /// Tank level
   final _tankLevel = BehaviorSubject<TankLevel>.seeded(TankLevel.lightOn);
+
+  /// Section1
 
   @override
   void initState() {
@@ -67,7 +70,7 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
     _section1ExpandableController.addListener(() async {
       _section1Description.add(_section1ExpandableController.expanded
           ? "Payment Details"
-          : '本次加油实付 \n¥284.3元 = ¥7.04元/L x 45.45L');
+          : '¥284.3元 = ¥7.04元/L x 45.45L');
     });
 
     _actualAmountPaidFocusNode.addListener(() {
@@ -86,7 +89,15 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
         .map((event) => event.value)
         .pairwise()
         .map((event) => event[1] ?? event[0])
-        .listen(bloc.setTankLevel);
+        .listen(bloc.setRemainingOil);
+
+    Rx.combineLatest3(
+            bloc.actualAmountPaid.whereNotNull(),
+            bloc.fuelQuantity.whereNotNull(),
+            bloc.gasPrice.whereNotNull(),
+            (a, b, c) =>
+                "${a.toStringAsItIs(2)}元 = ${b.toStringAsItIs(2)}L x ${c.toStringAsItIs(2)}元/L")
+        .listen(_section1Description.add);
 
     super.initState();
   }
@@ -208,31 +219,32 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
   Widget _buildSection2() {
     final bloc = Provider.of<LogRefuelBloc>(context, listen: false);
 
-    Widget tankLevelRating() => StreamBuilder(
-        stream: bloc.tankLevel.withLatestFrom(
-            _tankLevel,
-            (b, a) => switch (a) {
-                  TankLevel.custom => "${((b ?? 0) * 100).toStringAsItIs(0)}%",
-                  TankLevel.oneEighth => '1/8 箱',
-                  TankLevel.oneFourth => '1/4 箱',
-                  TankLevel.oneThird => '1/3 箱',
-                  TankLevel.oneHalf => '1/2 箱',
-                  TankLevel.lightOn => '灯亮',
-                }),
-        builder: (context, snapshot) {
-          return TDCell(
-              title: '剩余油量',
-              noteWidget: TDRate(
-                placement: PlacementEnum.none,
-                color: [TDTheme.of(context).brandHoverColor],
-                allowHalf: false,
-                value: 1,
-                showText: true,
-                icon: const [TDIcons.saturation],
-                builderText: (context, value) {
-                  final tlevel =
-                      TankLevel.fromValue(value.toInt()) ?? TankLevel.custom;
-
+    Widget tankLevelRating() => TDCell(
+        title: '剩余油量',
+        noteWidget: TDRate(
+          placement: PlacementEnum.none,
+          color: [TDTheme.of(context).brandHoverColor],
+          allowHalf: false,
+          value: 1,
+          showText: true,
+          icon: const [TDIcons.saturation],
+          builderText: (context, value) {
+            return StreamBuilder(
+                stream: bloc.remainingOil.withLatestFrom(
+                    _tankLevel,
+                    (b, a) => (
+                          switch (a) {
+                            TankLevel.custom =>
+                              "${((b ?? 0) * 100).toStringAsItIs(0)}%",
+                            TankLevel.oneEighth => '1/8 箱',
+                            TankLevel.oneFourth => '1/4 箱',
+                            TankLevel.oneThird => '1/3 箱',
+                            TankLevel.oneHalf => '1/2 箱',
+                            TankLevel.lightOn => '灯亮',
+                          },
+                          a
+                        )),
+                builder: (context, snapshot) {
                   return Padding(
                     padding: const EdgeInsets.only(left: 12.0),
                     child: TDButton(
@@ -240,12 +252,12 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
                       padding: const EdgeInsets.symmetric(
                         horizontal: 4,
                       ),
-                      icon: tlevel == TankLevel.lightOn
+                      icon: snapshot.data?.$2 == TankLevel.lightOn
                           ? TDIcons.lightbulb
                           : null,
-                      text: snapshot.data,
+                      text: snapshot.data?.$1,
                       size: TDButtonSize.extraSmall,
-                      type: snapshot.data == TankLevel.custom
+                      type: snapshot.data?.$2 == TankLevel.custom
                           ? TDButtonType.outline
                           : TDButtonType.fill,
                       shape: TDButtonShape.rectangle,
@@ -253,64 +265,25 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
                       onTap: () => _tankLevel.add(TankLevel.custom),
                     ),
                   );
-                  // return Container(
-                  //   width: 80,
-                  //   alignment: Alignment.centerRight,
-                  //   child: switch (tlevel) {
-                  //     null => const SizedBox.shrink(),
-                  //     TankLevel.lightOn => TDText.rich(
-                  //         TextSpan(children: [
-                  //           const WidgetSpan(
-                  //             alignment: PlaceholderAlignment.middle,
-                  // child: const Icon(
-                  //   TDIcons.lightbulb,
-                  //   color: Colors.red,
-                  //   size: 20,
-                  // ),
-                  //           ),
-                  //           TextSpan(
-                  //             text: ' 灯亮',
-                  //             style: TextStyle(
-                  //               fontSize:
-                  //                   TDTheme.of(context).fontTitleLarge?.size,
-                  //               color: TDTheme.of(context).textColorPrimary,
-                  //             ),
-                  //           ),
-                  //         ]),
-                  //       ),
-                  //     _ => TDText(
-                  //         switch (tlevel) {
-                  //           TankLevel.custom => '自定义',
-                  //           TankLevel.lightOn => '油表灯亮',
-                  //           TankLevel.oneEighth => '1/8 箱',
-                  //           TankLevel.oneFourth => '1/4 箱',
-                  //           TankLevel.oneThird => '1/3 箱',
-                  //           TankLevel.oneHalf => '1/2 箱',
-                  //         },
-                  //         style: TextStyle(
-                  //           fontSize: TDTheme.of(context).fontTitleLarge?.size,
-                  //           color: TDTheme.of(context).textColorPrimary,
-                  //         ),
-                  //       )
-                  //   },
-                  // );
-                },
-                onChange: (value) => _tankLevel.add(
-                    TankLevel.fromValue(value.toInt()) ?? TankLevel.custom),
-              ));
-        });
+                });
+          },
+          onChange: (value) => _tankLevel
+              .add(TankLevel.fromValue(value.toInt()) ?? TankLevel.custom),
+        ));
 
-    Widget tankLevelSlider() => TDSlider(
-          sliderThemeData: TDSliderThemeData.capsule(
-            context: context,
-            showThumbValue: false,
-            min: 0,
-            max: 100,
-            scaleFormatter: (value) => value.toInt().toString() + '%',
-          ),
-          value: 40,
-          onChanged: (value) => bloc.setTankLevel(value / 100),
-        );
+    Widget tankLevelSlider() => StreamBuilder(
+        stream: bloc.remainingOil,
+        builder: (context, snapshot) => TDSlider(
+              sliderThemeData: TDSliderThemeData.capsule(
+                context: context,
+                showThumbValue: false,
+                min: 0,
+                max: 100,
+                scaleFormatter: (value) => value.toInt().toString() + '%',
+              ),
+              value: ((snapshot.data ?? 0) * 100),
+              onChanged: (value) => bloc.setRemainingOil(value / 100),
+            ));
 
     Widget fillUpSwitch() => const TDCell(
           title: '是否加满',
@@ -427,7 +400,7 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
                   hasIcon: false,
                 ),
                 header: Container(
-                  color: Colors.indigoAccent,
+                  color: TDTheme.of(context).brandNormalColor,
                   child: Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: Row(
