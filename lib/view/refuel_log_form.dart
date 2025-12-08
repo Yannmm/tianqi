@@ -41,6 +41,8 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
 
   final _fuelQuantityEditingController = TextEditingController();
 
+  final _mileageEditingController = TextEditingController();
+
   final _gasPriceEditingController = TextEditingController();
 
   final _actualAmountPaidFocusNode = FocusNode();
@@ -48,6 +50,8 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
   final _fuelQuantityFocusNode = FocusNode();
 
   final _gasPriceFocusNode = FocusNode();
+
+  final _mileageFocusNode = FocusNode();
 
   /// Tank level
   final _tankLevel = BehaviorSubject<TankLevel>.seeded(TankLevel.lightOn);
@@ -61,8 +65,8 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
     bloc.actualAmountPaid.whereNotNull().distinct().listen((value) =>
         _actualAmountPaidEditingController.text = value.toStringAsItIs(2));
 
-    bloc.fuelQuantity.whereNotNull().distinct().listen((value) =>
-        _fuelQuantityEditingController.text = value.toStringAsItIs(2));
+    // bloc.fuelQuantity.whereNotNull().distinct().listen((value) =>
+    //     _fuelQuantityEditingController.text = value.toStringAsItIs(2));
 
     bloc.gasPrice.whereNotNull().distinct().listen(
         (value) => _gasPriceEditingController.text = value.toStringAsItIs(2));
@@ -305,11 +309,11 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
           // fuelQuantityInput(),
           // gasPriceInput()
           _buildTextField(
-              focusNode: _fuelQuantityFocusNode,
+              focusNode: _mileageFocusNode,
               inputType: TextInputType.number,
               leftLabel: '总里程',
               hintText: '上次里程：123456',
-              textEditingController: _fuelQuantityEditingController,
+              textEditingController: _mileageEditingController,
               rightWidget: Text(
                 '公里',
                 style: TextStyle(
