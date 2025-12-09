@@ -22,3 +22,5 @@ last tab is "more" or "settings". user can be notified view this page (or insert
 
 
 # This app should support multiple cars
+
+# Add tab when adding expense (like refuelling(92, 95, 98), repair etc.)
