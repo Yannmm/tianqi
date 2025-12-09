@@ -35,7 +35,7 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
   /// Section1 description
   final _section1Description = BehaviorSubject<String>.seeded('付款信息');
 
-  final _section2Description = BehaviorSubject<String>.seeded('123123');
+  final _section2Description = BehaviorSubject<String>.seeded('里程 & 油量');
 
   final _actualAmountPaidEditingController = TextEditingController();
 
@@ -65,17 +65,11 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
     bloc.actualAmountPaid.whereNotNull().distinct().listen((value) =>
         _actualAmountPaidEditingController.text = value.toStringAsItIs(2));
 
-    // bloc.fuelQuantity.whereNotNull().distinct().listen((value) =>
-    //     _fuelQuantityEditingController.text = value.toStringAsItIs(2));
+    bloc.fuelQuantity.whereNotNull().distinct().listen((value) =>
+        _fuelQuantityEditingController.text = value.toStringAsItIs(2));
 
     bloc.gasPrice.whereNotNull().distinct().listen(
         (value) => _gasPriceEditingController.text = value.toStringAsItIs(2));
-
-    _section1ExpandableController.addListener(() async {
-      _section1Description.add(_section1ExpandableController.expanded
-          ? "Payment Details"
-          : '¥284.3元 = ¥7.04元/L x 45.45L');
-    });
 
     _actualAmountPaidFocusNode.addListener(() {
       _onPaymentSectionFocusChange();
@@ -91,17 +85,40 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
 
     _tankLevel
         .map((event) => event.value)
+        .startWith(null)
         .pairwise()
         .map((event) => event[1] ?? event[0])
         .listen(bloc.setRemainingOil);
 
-    Rx.combineLatest3(
+    final section1Expanded = ReplaySubject<bool>(maxSize: 1);
+    final section2Expanded = ReplaySubject<bool>(maxSize: 1);
+
+    _section1ExpandableController.addListener(
+        () => section1Expanded.add(_section1ExpandableController.expanded));
+
+    _section2ExpandableController.addListener(
+        () => section2Expanded.add(_section2ExpandableController.expanded));
+
+    Rx.combineLatest4(
             bloc.actualAmountPaid.whereNotNull(),
             bloc.fuelQuantity.whereNotNull(),
             bloc.gasPrice.whereNotNull(),
-            (a, b, c) =>
-                "${a.toStringAsItIs(2)}元 = ${b.toStringAsItIs(2)}L x ${c.toStringAsItIs(2)}元/L")
+            section1Expanded.distinct(),
+            (a, b, c, d) => d
+                ? kPaymentDetails
+                : "${a.toStringAsItIs(2)}元 = ${b.toStringAsItIs(2)}L x ${c.toStringAsItIs(2)}元/L")
         .listen(_section1Description.add);
+
+    Rx.combineLatest5(
+            bloc.odometer.whereNotNull(),
+            bloc.remainingOil.whereNotNull(),
+            bloc.forgetToLog,
+            bloc.isFillUp,
+            section2Expanded.distinct(),
+            (a, b, c, d, e) => e
+                ? kOdometerAndTank
+                : "${a} 公里 | ${((b) * 100).toStringAsItIs(0)}% | 漏记: ${c ? "是" : "否"} | 加满: ${d ? "是" : "否"}")
+        .listen(_section2Description.add);
 
     super.initState();
   }
@@ -145,16 +162,6 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
       child: Column(
         children: [_buildSection1(), _buildSection2()],
       ));
-
-  final TDCheckboxGroupController _genderCheckboxGroupController =
-      TDCheckboxGroupController();
-
-  final Map<String, String> _radios = {
-    '0': '男',
-    '1': '女',
-    '3': '保密',
-    '4': '八分之一'
-  };
 
   Widget _buildSection1() {
     final bloc = Provider.of<LogRefuelBloc>(context, listen: false);
@@ -289,14 +296,29 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
               onChanged: (value) => bloc.setRemainingOil(value / 100),
             ));
 
-    Widget fillUpSwitch() => const TDCell(
+    Widget isFillUpSwitch() => TDCell(
           title: '是否加满',
-          noteWidget: TDSwitch(),
+          noteWidget: StreamBuilder(
+              stream: bloc.isFillUp,
+              builder: (context, snapshot) => TDSwitch(
+                    isOn: snapshot.data ?? false,
+                    onChanged: (value) {
+                      bloc.setIsFillUp(value);
+                      return value;
+                    },
+                  )),
         );
 
-    Widget missLogSwitch() => const TDCell(
+    Widget forgetToLogSwitch() => TDCell(
           title: '上次漏记',
-          noteWidget: TDSwitch(),
+          noteWidget: StreamBuilder(
+              stream: bloc.forgetToLog,
+              builder: (context, snapshot) => TDSwitch(
+                  isOn: snapshot.data ?? false,
+                  onChanged: (value) {
+                    bloc.setForgetToLog(value);
+                    return value;
+                  })),
         );
 
     return _expandableSection(
@@ -334,14 +356,14 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
             color: Colors.white,
             child: Row(
               children: [
-                Expanded(child: missLogSwitch()),
+                Expanded(child: forgetToLogSwitch()),
                 const TDDivider(
                   direction: Axis.vertical,
                   // color: TDTheme.of(context).brandHoverColor,
                   width: 1,
                   height: 20,
                 ),
-                Expanded(child: fillUpSwitch()),
+                Expanded(child: isFillUpSwitch()),
               ],
             ),
           )
@@ -477,3 +499,6 @@ enum TankLevel {
         TankLevel.oneHalf => 0.5,
       };
 }
+
+const kPaymentDetails = "付款信息";
+const kOdometerAndTank = "里程 & 油量";

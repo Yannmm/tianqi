@@ -36,12 +36,26 @@ class LogRefuelBloc {
 
   void setOdometer(double? value) => _odometer.add(value);
 
-  /// Tank level
-  final _remainingOil = BehaviorSubject<double?>.seeded(null);
+  /// Remaining oil
+  final _remainingOil = ReplaySubject<double?>(maxSize: 1);
 
   Stream<double?> get remainingOil => _remainingOil;
 
   void setRemainingOil(double? value) => _remainingOil.add(value);
+
+  /// Forget to log
+  final _forgetToLog = BehaviorSubject<bool>.seeded(false);
+
+  Stream<bool> get forgetToLog => _forgetToLog;
+
+  void setForgetToLog(bool value) => _forgetToLog.add(value);
+
+  /// Is fill up
+  final _isFillUp = BehaviorSubject<bool>.seeded(false);
+
+  Stream<bool> get isFillUp => _isFillUp;
+
+  void setIsFillUp(bool value) => _isFillUp.add(value);
 
   LogRefuelBloc() {
     _bind();
@@ -53,5 +67,9 @@ class LogRefuelBloc {
     //     _fuelQuantity.whereNotNull(),
     //     _gasPrice.where((event) => event == null),
     //     (a, b, c) => a / b).listen(_gasPrice.add);
+
+    _remainingOil.listen((event) {
+      print("remaining oil => ${event}");
+    });
   }
 }
