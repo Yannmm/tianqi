@@ -37,6 +37,8 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
 
   final _section2Description = BehaviorSubject<String>.seeded('里程 & 油量');
 
+  final _section3Description = BehaviorSubject<String>.seeded('备注 & 附件');
+
   final _actualAmountPaidEditingController = TextEditingController();
 
   final _fuelQuantityEditingController = TextEditingController();
@@ -44,6 +46,8 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
   final _mileageEditingController = TextEditingController();
 
   final _gasPriceEditingController = TextEditingController();
+
+  final _notesEditingController = TextEditingController();
 
   final _actualAmountPaidFocusNode = FocusNode();
 
@@ -117,7 +121,7 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
             section2Expanded.distinct(),
             (a, b, c, d, e) => e
                 ? kOdometerAndTank
-                : "${a} 公里 | ${((b) * 100).toStringAsItIs(0)}% | 漏记: ${c ? "是" : "否"} | 加满: ${d ? "是" : "否"}")
+                : "${a.toStringAsItIs(0)} 公里 | ${((b) * 100).toStringAsItIs(0)}% | 加满: ${d ? "是" : "否"} | 漏记: ${c ? "是" : "否"}")
         .listen(_section2Description.add);
 
     super.initState();
@@ -160,7 +164,7 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
   Widget build(BuildContext context) => FormBuilder(
       key: _formKey,
       child: Column(
-        children: [_buildSection1(), _buildSection2()],
+        children: [_buildSection1(), _buildSection2(), _buildSection3()],
       ));
 
   Widget _buildSection1() {
@@ -279,7 +283,7 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
                 });
           },
           onChange: (value) => _tankLevel
-              .add(TankLevel.fromValue(value.toInt()) ?? TankLevel.custom),
+              .add(TankLevel.fromIndex(value.toInt()) ?? TankLevel.custom),
         ));
 
     Widget tankLevelSlider() => StreamBuilder(
@@ -327,9 +331,6 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // actualAmountPaidInput(),
-          // fuelQuantityInput(),
-          // gasPriceInput()
           _buildTextField(
               focusNode: _mileageFocusNode,
               inputType: TextInputType.number,
@@ -344,7 +345,6 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
                 ),
               ),
               onChanged: (value) => bloc.setOdometer(double.tryParse(value))),
-
           tankLevelRating(),
           StreamBuilder(
             stream: _tankLevel.map((event) => event == TankLevel.custom),
@@ -366,6 +366,42 @@ class _RefuelLogFormState extends State<RefuelLogForm> {
                 Expanded(child: isFillUpSwitch()),
               ],
             ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSection3() {
+    Widget uploadSelector() => TDUpload(
+          files: [],
+          // onClick: onClick,
+          // onCancel: onCancel,
+          onError: print,
+          onValidate: print,
+          onChange: ((files, type) {}),
+        );
+
+    return _expandableSection(
+      _section3Description,
+      _section3ExpandableController,
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          uploadSelector(),
+          TDTextarea(
+            width: 200,
+            backgroundColor: Colors.red,
+            hintText: '备注',
+            maxLength: 500,
+            indicator: true,
+            readOnly: false,
+            layout: TDTextareaLayout.vertical,
+            controller: _notesEditingController,
+            showBottomDivider: false,
+            onChanged: (value) {
+              // _formItemNotifier['resume']?.upDataForm(value);
+            },
           )
         ],
       ),
@@ -480,7 +516,7 @@ enum TankLevel {
   oneThird,
   oneHalf;
 
-  static TankLevel? fromValue(int value) => switch (value) {
+  static TankLevel? fromIndex(int value) => switch (value) {
         0 => TankLevel.custom,
         1 => TankLevel.lightOn,
         2 => TankLevel.oneEighth,
@@ -489,6 +525,11 @@ enum TankLevel {
         5 => TankLevel.oneHalf,
         _ => null,
       };
+
+  static TankLevel? fromValue(double value) => TankLevel.values.firstWhere(
+        (element) => element.value == value,
+        orElse: () => TankLevel.custom,
+      );
 
   double? get value => switch (this) {
         TankLevel.custom => null,
