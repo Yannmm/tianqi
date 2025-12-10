@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:tianqi/view/home.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl_standalone.dart';
+import 'package:tianqi/view/welcome_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +17,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const Home(),
+      // home: const Home(),
+      home: WelcomePageNaturalFade(),
     );
   }
 }
