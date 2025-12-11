@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // home: const Home(),
-      home: WelcomePageNaturalFade(),
+      home: WelcomePage(),
     );
   }
 }
